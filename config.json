@@ -1,0 +1,30 @@
+{
+  "environments": [
+    {
+      "development": {
+        "facebook": {
+          "clientID": "4836645812",
+          "clientSecret": "a35abf7f814f8ab1536bd7c209134cce",
+          "callbackURL": "http://pandora-tape.codio.io:3000/v1/profile/auth/facebook/callback"
+        },
+        "mongodb": {
+          "url": "mongodb://chatterbox_dev:chatterbox_dev@ds041387.mongolab.com:41387/chatterbox_dev"
+        },
+        "pubnub": {
+          "subscribe_key": "demo",
+          "publish_key": "demo",
+          "channels": [
+            {
+              "analytics": {
+                "name": "webinar-chat"
+              }
+            }
+          ]
+        },
+        "api": {
+          "httpPort": "3000"
+        }
+      }
+    }
+  ]
+}
