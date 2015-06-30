@@ -27,8 +27,8 @@ module.exports = (function() {
 
 
     var pubnunb = require('pubnub').init({
-        subscribe_key: 'demo',
-        publish_key: 'demo'
+        subscribe_key: 'sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f',
+        publish_key: 'pub-c-27c05fcb-d215-4433-9b95-a6e3fd9f49d7'
     });
 
 
@@ -44,7 +44,7 @@ module.exports = (function() {
  
     app.use(function(req,res,next){
         logger.info('adding pubnub to request');
-        //req.pubnub = pubnub;
+        req.pubnub = pubnub;
         if(next){ next(); }
     })
 
@@ -67,7 +67,7 @@ module.exports = (function() {
                            ,duration: req.headers['startTime']
                         };
 
-        /**req.pubnub.publish({channel: 'chatterbox_dev-analytics'
+        req.pubnub.publish({channel: 'chatterbox_dev-analytics'
                        ,message: logMessage
                        ,callback: function(){
                                 logger.info('analytics message published');
@@ -93,7 +93,6 @@ module.exports = (function() {
 
     app.get('/profile/:id', passport.authenticate('bearer', {session: false}), function(request, response) {
         var promise = Q.defer();
-
 
         UserProfile.findById(request.params.id, function(err, response) {
          
@@ -216,7 +215,7 @@ module.exports = (function() {
         newProfile.lastName = lastName;
         newProfile.email = email;
         newProfile.password = password;
-        newProfile.status = "enabled";
+        newProfile.status = "enabled";  
         newProfile.authKey = uuid.v4();
         newProfile.save(save_callback);
 
