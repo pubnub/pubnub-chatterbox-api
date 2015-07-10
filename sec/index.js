@@ -5,7 +5,7 @@ var BearerStrategy = require('passport-http-bearer').Strategy;
 var BasicStrategy  = require('passport-http').BasicStrategy;
 
 
-module.exports = function(passport, mongoose){
+module.exports = function(passport, mongoose, models){
 
 
 var adminPassword = "pubnubrocks!";
@@ -41,7 +41,8 @@ var adminUserName = "pubnubadmin";
         },
         
         function(token, done) {
-            ApiKey.findOne({"access_token": token }, function(err,result){
+            var apiKey = models.apiKey();
+            apiKey.findOne({"access_token": token }, function(err,result){
                 logger.info('access token found: ' + token);
                 done();
             });

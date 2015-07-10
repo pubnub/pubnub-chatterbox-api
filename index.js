@@ -7,9 +7,6 @@ var Q = require('q');
 var winston = require('winston');
 
 var passport = require('passport');
-var LocalStrategy = require('passport-local').Strategy;
-var BearerStrategy = require('passport-http-bearer').Strategy;
-var BasicStrategy = require('passport-http').Strategy;
 
 var _ = require('underscore');
 var uuid = require('node-uuid');
@@ -26,7 +23,7 @@ module.exports = (function() {
     });
 
 
-    var pubnunb = require('pubnub').init({
+    var pubnub = require('pubnub').init({
         subscribe_key: 'sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f',
         publish_key: 'pub-c-27c05fcb-d215-4433-9b95-a6e3fd9f49d7'
     });
@@ -35,15 +32,13 @@ module.exports = (function() {
     mongoose.connect('mongodb://chatterbox_dev:chatterbox_dev@ds041387.mongolab.com:41387/chatterbox_dev')
 
     var models = require('./model')(mongoose);
-    require('./sec')(passport, mongoose);
-
+    require('./sec')(passport, mongoose, models);
 
     var UserProfile = models.userProfile();
     var ApiKey = models.apiKey();
 
  
     app.use(function(req,res,next){
-        logger.info('adding pubnub to request');
         req.pubnub = pubnub;
         if(next){ next(); }
     })
@@ -66,12 +61,13 @@ module.exports = (function() {
                            ,statusCode: res.status
                            ,duration: req.headers['startTime']
                         };
-
-        req.pubnub.publish({channel: 'chatterbox_dev-analytics'
-                       ,message: logMessage
-                       ,callback: function(){
-                                logger.info('analytics message published');
-                       }});**/ 
+        if(req.pubnub){
+            req.pubnub.publish({channel: 'chatterbox_dev-analytics'
+                           ,message: logMessage
+                           ,callback: function(){
+                                    logger.info('analytics message published');
+                            }});
+        }
     });
 
     app.set('port', (process.env.PORT || 5000));
@@ -79,7 +75,6 @@ module.exports = (function() {
     app.use(bodyParser.json());
     app.use(passport.initialize());
     app.use(passport.session());
-
 
 
     var handleError = function(request, response, err) {
@@ -242,9 +237,9 @@ module.exports = (function() {
         }
 
         var vrequest = function(request){
-            if(  (_.isBlank(request.body.application)) ||
-                 (_.isNull(request.body.contact_email)) || 
-                 (_.isBlank(request.body.company)) ){
+            if(  (_.isEmpty(request.body.application)) ||
+                 (_.isEmpty(request.body.contact_email)) || 
+                 (_.isEmpty(request.body.company)) ){
                     return false;
                 }else{
                     return true;
@@ -253,7 +248,7 @@ module.exports = (function() {
 
         if(vrequest(request)){
             var newApiKey = uuid.v4();
-            var apiKey = new ApiKey();
+            var apiKey = models.apiKey();
             apiKey.application = request.body.application;
             apiKey.contact_email = request.body.contact_email;
             apiKey.api_key = newApiKey;
