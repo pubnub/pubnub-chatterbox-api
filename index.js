@@ -22,7 +22,6 @@ module.exports = (function() {
         ]
     });
 
-
     var pubnub = require('pubnub').init({
         subscribe_key: 'sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f',
         publish_key: 'pub-c-27c05fcb-d215-4433-9b95-a6e3fd9f49d7'
@@ -86,7 +85,8 @@ module.exports = (function() {
 
 
 
-    app.get('/profile/:id', passport.authenticate('bearer', {session: false}), function(request, response) {
+    //app.get('/profile/:id', passport.authenticate('bearer', {session: false}), function(request, response) {
+    app.get('/profile/:id', function(request, response) {
         var promise = Q.defer();
 
         UserProfile.findById(request.params.id, function(err, response) {
@@ -194,11 +194,13 @@ module.exports = (function() {
 
         console.dir(request.body);
 
-        var username = request.body.username;
+        var username = request.body.email;
         var firstName = request.body.firstName;
         var lastName = request.body.lastName;
         var email = request.body.email;
         var password = request.body.password;
+        var location = request.body.location;
+
         var newProfile = models.userProfile();
 
         var save_callback = function(err, profile) {
@@ -227,7 +229,6 @@ module.exports = (function() {
             }
         }
     });
-
 
 
     app.post('/admin/api_key',passport.authenticate('basic', {session: false}), function(request,response){
@@ -259,10 +260,16 @@ module.exports = (function() {
                 }else{
                     response.json(result);
                 }
-            })
+            });
         }
 
-    })
+    });
+
+    app.post('/chatterbox/v1/api/profile/auth', passport.authenticate('basic',{session: false}), function(request,response){
+        response.json(request.user);
+    });
+
+    
 
 
 

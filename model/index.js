@@ -32,10 +32,9 @@ module.exports = function(mongoose){
 	var UserProfile = mongoose.model('UserProfile', UserProfileSchema);
     var ApiKey = mongoose.model('ApiKey', ApiKeySchema);
     
-
     return {
-    	 userProfile: function() { return new UserProfile(); }
-    	, apiKey: function() { return new ApiKey(); }
+    	 userProfile: function() { return UserProfile; }
+    	, apiKey: function() { return ApiKey; }
     }
 
 }

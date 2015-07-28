@@ -14,8 +14,9 @@ var adminUserName = "pubnubadmin";
 
 	passport.use(new LocalStrategy(
         function(username, password, done) {
-            UserProfile.findOne({
-                username: username
+            var userProfile = models.userProfile();
+            userProfile.findOne({
+                email: username
             }, function(err, user) {
                 if (err) {
                     logger.debug('error in strategy');
@@ -51,10 +52,21 @@ var adminUserName = "pubnubadmin";
 
     
     passport.use(new BasicStrategy(
- 
   		function(userid, password, done) {
-  			console.log('username: ' + userid + ' password: ' + password);
-  			if((userid === adminUserName) && (password === adminPassword)){
+  		  console.log('username: ' + userid + ' password: ' + password);
+        var userProfile = models.userProfile();
+
+        userProfile.findOne({"email": userid}, function(err,result){
+            if(err){
+              console.log('error retrieving user');
+              done('invalid username',null);
+            }else{
+               console.log('I found a user');
+               done(null,result);
+            }
+        });
+
+      	if((userid === adminUserName) && (password === adminPassword)){
   				console.log('returning a userprofile');
   				done(null,{
   					username: adminUserName,
