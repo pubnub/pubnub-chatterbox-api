@@ -1,5 +1,5 @@
 {
-  "environments": [
+  "environments": 
     {
       "development": {
         "facebook": {
@@ -13,6 +13,8 @@
         "pubnub": {
           "subscribe_key": "demo",
           "publish_key": "demo",
+          "cipher_key": "7899872121",
+          "secret_key": "",
           "channels": [
             {
               "analytics": {
@@ -26,5 +28,4 @@
         }
       }
     }
-  ]
 }

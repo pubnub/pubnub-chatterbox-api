@@ -1,15 +1,13 @@
-var express = require('express');
-var mongoose = require('mongoose');
-var bodyParser = require('body-parser');
+var express = require('express'),
+    mongoose = require('mongoose'),
+    bodyParser = require('body-parser'),
+    Q = require('q'),
+    winston = require('winston'),
+    passport = require('passport'),
+    _ = require('underscore'),
+    uuid = require('node-uuid');
 
-var Q = require('q');
 
-var winston = require('winston');
-
-var passport = require('passport');
-
-var _ = require('underscore');
-var uuid = require('node-uuid');
 
 module.exports = (function() {
 
@@ -23,8 +21,11 @@ module.exports = (function() {
     });
 
     var pubnub = require('pubnub').init({
-        subscribe_key: 'sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f',
-        publish_key: 'pub-c-27c05fcb-d215-4433-9b95-a6e3fd9f49d7'
+        subscribe_key: config.environments['development'].pubnub.subscribe_key,
+        publish_key: config.environments['development'].pubnub.publish_key,
+        secret_key: config.environments['development'].pubnub.secret_key,
+        cipher_key: config.environments['development'].pubnub.cipher_key,
+        ssl: true,
     });
 
 
@@ -33,10 +34,7 @@ module.exports = (function() {
     var models = require('./model')(mongoose);
     require('./sec')(passport, mongoose, models);
 
-    var UserProfile = models.userProfile();
-    var ApiKey = models.apiKey();
-
- 
+   
     app.use(function(req,res,next){
         req.pubnub = pubnub;
         if(next){ next(); }
@@ -75,208 +73,32 @@ module.exports = (function() {
     app.use(passport.initialize());
     app.use(passport.session());
 
-
-    var handleError = function(request, response, err) {
+    
+    app.locals.error_call =  function(request, response, err) {
         logger.info('error caught');
         response.json({
             error: err,
         });
     };
 
+    var profile_router = require('./routes/profile')(app,models, passport,logger);
+    var apikey_router = require('./routes/apikey')(app,models, passport,logger);
+    var rooms_router = require('./routes/rooms')(app,models, passport,logger);
+
+    app.use('/chatterbox/api/v1/profile',profile_router);
+    app.use('/chatterbox/api/v1/admin/apikey', apikey_router);
+    app.use('/chatterbox/api/v1/admin/rooms', rooms_router);
 
 
-    //app.get('/profile/:id', passport.authenticate('bearer', {session: false}), function(request, response) {
-    app.get('/profile/:id', function(request, response) {
-        var promise = Q.defer();
-
-        UserProfile.findById(request.params.id, function(err, response) {
-         
-            if (err) {
-                promise.reject(err,result);
-            }else{
-                promise.resolve(result);
-            }
-            return promise;
-        });
-
-        promise.then(function(result){
-            request.json(result);
-        }, function(err,result){
-            handleError(request,response,err);
-        })
-    });
-
-
-    app.put('/profile/:id', function(request, response) {
-
-        if (!request.body) {
-            response.sendStatus(400);
-            response.send("Invalid request");
-            response.end();
-            return
-        }
-
-        var username = request.body.username;
-        var firstName = request.body.firstName;
-        var lastName = request.body.lastName;
-        var email = request.body.email;
-        var password = request.body.password;
-
-
-        console.log('locating profile: ' + request.params.id);
-
-        UserProfile.findById(request.params.id, function(err, results) {
-            if (err) {
-                console.log('error while attempting to update profile');
-                console.log(err);
-                response.sendStatus(400);
-            } else {
-                results.username = username,
-                    results.firstName = firstName,
-                    results.lastName = lastName,
-                    results.email = email,
-                    results.password = password,
-                    results.save(function(err, results) {
-                        response.json(results);
-                    });
-            }
-        });
-    });
-
-    app.post('/profile/:id/connections/:provider', function(request, response) {
-
-        if (!request.body) {
-            response.sendStatus(400);
-            response.done();
-        }
-
-        UserProfile.findById(request.params.id, function(err, result) {
-            var promise = Q.defer();
-            if (err) {
-                console.log('unable to find profile: ' + err);
-                handleError(request, response, err);
-                promise.reject(err, result);
-            } else {
-
-                if (result.connections) {
-                    _.each(result.connections, function(connection) {
-                        if (connection.provider === request.body.provider) {
-                            connection.provider_profile_id = request.body.provider_profile_id;
-
-                        }
-                    });
-                }
-
-                result.connections.push({
-                    provider: request.body.provider,
-                    provider_profile_id: request.body.provider_id
-                });
-                result.save(function(err, results) {
-                    if (err) {
-                        promise.reject(err, results);
-                    } else {
-                        promise.resolve(results);
-                    }
-                })
-            }
-
-            return promise;
-        }).then(function(result) {
-            response.json(result);
-        }, function(err) {
-            handleError(request, response, err);
-        });
-    });
-
-
-
-    app.post('/profile', function(request, response) {
-
-        console.dir(request.body);
-
-        var username = request.body.email;
-        var firstName = request.body.firstName;
-        var lastName = request.body.lastName;
-        var email = request.body.email;
-        var password = request.body.password;
-        var location = request.body.location;
-
-        var newProfile = models.userProfile();
-
-        var save_callback = function(err, profile) {
-            response.json(profile);
-        }
-
-        newProfile.username = username;
-        newProfile.firstName = firstName;
-        newProfile.lastName = lastName;
-        newProfile.email = email;
-        newProfile.password = password;
-        newProfile.status = "enabled";  
-        newProfile.authKey = uuid.v4();
-        newProfile.save(save_callback);
-
-    });
-
-
-    app.delete('/profile/:id', function(request, response) {
-
-        var cb = function(err, res) {
-            if (err) {
-                response.send('error with request: ' + err);
-            } else {
-
-            }
-        }
-    });
-
-
-    app.post('/admin/api_key',passport.authenticate('basic', {session: false}), function(request,response){
-        if(!request.body){
-            handleError(request,response,"body not present in request");
-            return;
-        }
-
-        var vrequest = function(request){
-            if(  (_.isEmpty(request.body.application)) ||
-                 (_.isEmpty(request.body.contact_email)) || 
-                 (_.isEmpty(request.body.company)) ){
-                    return false;
-                }else{
-                    return true;
-                }
-        }
-
-        if(vrequest(request)){
-            var newApiKey = uuid.v4();
-            var apiKey = models.apiKey();
-            apiKey.application = request.body.application;
-            apiKey.contact_email = request.body.contact_email;
-            apiKey.api_key = newApiKey;
-            apiKey.status = "enabled";
-            apiKey.save(function(err,result){
-                if(err){
-                    handleError(request,response,err);
-                }else{
-                    response.json(result);
-                }
-            });
-        }
-
-    });
-
+    
     app.post('/chatterbox/v1/api/profile/auth', passport.authenticate('basic',{session: false}), function(request,response){
         response.json(request.user);
     });
-
-    
-
 
 
 
     app.listen(app.get('port'), function() {
         console.log('Node app is running on port', app.get('port'));
     });
-
 
 })()

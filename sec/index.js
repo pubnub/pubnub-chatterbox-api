@@ -60,13 +60,16 @@ var adminUserName = "pubnubadmin";
             if(err){
               console.log('error retrieving user');
               done('invalid username',null);
+              return;
             }else{
-               console.log('I found a user');
-               done(null,result);
+               console.log('returning profile');
+               console.dir(result);
+               return done(null,result);
+               
             }
         });
 
-      	if((userid === adminUserName) && (password === adminPassword)){
+      	/*if((userid === adminUserName) && (password === adminPassword)){
   				console.log('returning a userprofile');
   				done(null,{
   					username: adminUserName,
@@ -74,7 +77,7 @@ var adminUserName = "pubnubadmin";
   				});
   			}else{
   				done("wrong username/password",null);
-  			}
+  			}*/
   		}
   	));
     	
