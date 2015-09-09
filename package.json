@@ -1,5 +1,5 @@
 {
-  "name": "Chatterbox API",
+  "name": "ChatterboxAPI",
   "version": "0.1.3",
   "description": "Simple API for a chat app",
   "main": "index.js",
