@@ -25,7 +25,7 @@ module.exports = (function() {
     logger.info('initalizing pubnub with key: \n publish: %s \n subscribe: %s,\n secret_key: %s', config.environments['development'].pubnub.publish_key,
                                                                                                   config.environments['development'].pubnub.subscribe_key,
                                                                                                   config.environments['development'].pubnub.secret_key);
-    /*//single instance of pubnub
+   
     var pubnub = require('pubnub').init({
         subscribe_key: config.environments['development'].pubnub.subscribe_key,
         publish_key: config.environments['development'].pubnub.publish_key,
@@ -33,16 +33,17 @@ module.exports = (function() {
         uuid: "chatterbox_api_server_admin",
         origin: 'ps5.pubnub.com',
         ssl: false,
-    });*/
-
-     //single instance of pubnub
-    var pubnub = require('pubnub').init({
-        subscribe_key: "pam",
-        publish_key: "pam",
-        secret_key: "pam"
-        uuid: "chatterbox_api_server_admin",
-        ssl: false,
     });
+
+
+    pubnub.grant({channel: 'webinar-chat', callback: function(m){ logger.info('channel level grant success: ');  logger.info(m)} 
+                                           ,error: function(m){ logger.info('channel level grant failed: '); logger.info(m); }});
+
+    
+    pubnub.grant({channel: 'webinar-chat-pnpres', callback: function(m){ logger.info('channel level grant success: ');  logger.info(m); }
+                                           ,error: function(m){ logger.info('channel level grant failed: '); logger.info(m); }})
+
+
 
     //connect to db, in this case we are using MongoDB hosted on mongolab and mongoose ODM 
     mongoose.connect(config.environments['development'].mongodb.url);
@@ -51,6 +52,8 @@ module.exports = (function() {
     //load up passport for security. Using localstrategy and bearer strayegy
     require('./sec')(passport, models, logger);
 
+    //add some middleware to add pubnub to each request.
+    require('./middleware/add_user_to_request')(app, models, logger);
 
     //add some middleware to add pubnub to each request.
     require('./middleware/add_pubnub_to_request')(app, pubnub, logger, config);
@@ -79,8 +82,9 @@ module.exports = (function() {
         logger.info("inside param(cname) for: " + request.path);
         request.org_id = id;
         next();
-
     });
+
+
 
 
 
@@ -98,6 +102,8 @@ module.exports = (function() {
     var apikey_router = require('./routes/apikey')(app, models, passport, logger);
     var rooms_router = require('./routes/rooms')(app, models, passport, logger);
     var organization_router = require('./routes/organization')(app, models, passport, logger);
+
+
 
     admin_router.use('/organization', organization_router);
     admin_router.use('/organization/:cname/apikey', apikey_router);
@@ -154,7 +160,6 @@ module.exports = (function() {
                                     }
                                 }
 
-
                                 //here is where we go the grant
                                 var grant_access = function(rooms, auth_key) {
                                     try {
@@ -163,49 +168,32 @@ module.exports = (function() {
                                         for (var idx = 0; idx < rooms.length; ++idx) {
                                             logger.info('granting access to room: ' + rooms[idx].room_name + " channel: " + rooms[idx].channel_name + " to authkey: " + auth_key);
 
-                                            
+                                            //check to ensure your time is correct!!!!! otherwise Signatures won't match
                                             pubnub.time( function(r){
                                                     var myLocalTime = new Date().getTime() * 1000;
                                                     logger.info('server time: ' + r + " actual time: " + new Date(r / 10000));
                                                     logger.info('local time: ' + myLocalTime + ' actual time: ' + new Date());
                                             });
 
+                                            var authk = auth_key.toString().trim();
+                                            //user level grant.
                                             pubnub.grant({
-                                                channel: rooms[idx].channel_name,
-                                                auth_key: auth_key,
+                                                channel: rooms[idx].channel_name + "," + rooms[idx].channel_name + "-pnres",
+                                                auth_key: authk,
                                                 read: true,
                                                 write: true,
                                                 ttl: 1440,
                                                 callback: function(result) {
                                                     logger.info(result);
-                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/me");
+                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/" + authk);
                                                 }
                                                 ,error: function(result) {
                                                     logger.info("grant failed with message: %s" + result);
                                                     logger.info(result);
-                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/me");
+                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/" + authk);
                                                 }
-
                                             });
 
-
-                                            pubnub.grant({
-                                                channel: rooms[idx].channel_name + "-pnpres",
-                                                auth_key: auth_key,
-                                                read: true,
-                                                write: true,
-                                                ttl: 1440,
-                                                callback: function(result) {
-                                                    logger.info(result);
-                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/me");
-                                                }
-                                                ,error: function(result) {
-                                                    logger.info("grant failed with message: %s" + result);
-                                                    logger.info(result);
-                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/me");
-                                                }
-
-                                            });
                                         }
                                     } catch (e) {
                                         logger.info("exception caught in grant:" + e);

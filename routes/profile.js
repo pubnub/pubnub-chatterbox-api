@@ -13,8 +13,21 @@ module.exports = function(app,models, passport, logger){
    
     router.get('/:id', function(request, response) {
         logger.info('entering find user profile by id: ' + request.params.id);
+        var access_token = null;
         
-        UserProfile.findById(request.params.id, function(err, result) {
+        if(request.params.id === 'me'){
+            logger.info('coming from me');
+             if(request.params.access_token){
+                 access_token = request.params.access_token;
+             }else{
+                 access_token = request.headers.access_token;
+             }
+        }else{
+            access_token = request.params.id;
+        }
+        
+        logger.info('found access_token: ' + access_token);
+        UserProfile.findById(access_token, function(err, result) {
             if(err){
                 var errs = "error while retrieving profile for id: " + request.params.id + " " + err;
                 response.status(500).json({error: errs});
@@ -27,10 +40,7 @@ module.exports = function(app,models, passport, logger){
         logger.info('leaving find user profile by id: ' + request.params.id);       
     });
 
-    router.get('/me', function(request,response){
-       load_org(request,response);
-    });
-
+  
 
     router.put('/:id', function(request, response) {
 
@@ -72,7 +82,7 @@ module.exports = function(app,models, passport, logger){
     });
 
 
-    router.get('/', passport.authenticate('local',{session: false}),function(request,response){
+    router.get('/',function(request,response){
 
         logger.info('entering get /profiles with orgid: ' + request.org_id);
 
