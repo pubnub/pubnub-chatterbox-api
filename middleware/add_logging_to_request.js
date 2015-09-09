@@ -5,8 +5,8 @@ module.exports = function(app,winston,logger){
 
 	 app.use(function(req, res, next) {
 
-        var logmsg = 'rstart: %j, from: %s, path: %s';
-        logger.info(logmsg, new Date(), req.ip, req.path);
+        var logmsg = 'time: %j, from: %s, path: %s';
+        logger.info(logmsg, new Date().getTime() / 1000, req.ip, req.path);
         winston.profile(req.ip);
         
         if (next) {
@@ -15,8 +15,8 @@ module.exports = function(app,winston,logger){
             winston.profile(req.ip);
    	        req.pubnub.publish({channel: 'chatterbox_dev-log'
                            ,message: { ip: req.ip
-		                               ,apikey: req.headers['Authorization']
-                			           ,timestamp: new Date()
+                                   ,for_user: req.headers['user_id']
+                  			           ,timestamp: new Date().getTime() / 1000
           		            	       ,statusCode: res.status
                            			   ,duration: req.headers['startTime']
                            			   ,request: req}

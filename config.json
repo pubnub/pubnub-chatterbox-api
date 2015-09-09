@@ -13,14 +13,7 @@
         "pubnub": {
           "subscribe_key": "sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f",
           "publish_key": "pub-c-27c05fcb-d215-4433-9b95-a6e3fd9f49d7",
-          "secret_key": "sec-c-NjRmMjQ5ZjMtM2MxMS00YTNkLWI5ZTItZjgyYWQzYjQ0MjM2",
-          "channels": [
-            {
-              "analytics": {
-                "name": "webinar-chat"
-              }
-            }
-          ]
+          "secret_key": "sec-c-M2VhMmM3YTItOWJjNi00ZDZkLWI1N2QtM2Y5NTllMzJjOTEz"
         },
         "api": {
           "httpPort": "3000"

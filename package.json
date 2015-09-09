@@ -15,7 +15,7 @@
     "passport-http": "^0.2.2",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
-    "pubnub": "^3.7.11",
+    "pubnub": "^3.7.8",
     "q": "^1.4.1",
     "underscore": "^1.8.3",
     "winston": "^1.0.0"

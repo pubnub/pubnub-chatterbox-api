@@ -21,12 +21,17 @@ module.exports = (function() {
         ]
     });
 
+
+    logger.info('initalizing pubnub with key: \n publish: %s \n subscribe: %s,\n secret_key: %s', config.environments['development'].pubnub.publish_key,
+                                                                                                  config.environments['development'].pubnub.subscribe_key,
+                                                                                                  config.environments['development'].pubnub.secret_key);
     //single instance of pubnub
     var pubnub = require('pubnub').init({
         subscribe_key: config.environments['development'].pubnub.subscribe_key,
         publish_key: config.environments['development'].pubnub.publish_key,
         secret_key: config.environments['development'].pubnub.secret_key,
-        //cipher_key: config.environments['development'].pubnub.cipher_key,
+        uuid: "chatterbox_api_server_admin",
+        origin: 'ps5.pubnub.com',
         ssl: false,
     });
 
@@ -148,11 +153,38 @@ module.exports = (function() {
                                         var list_of_channel_names = [];
                                         for (var idx = 0; idx < rooms.length; ++idx) {
                                             logger.info('granting access to room: ' + rooms[idx].room_name + " channel: " + rooms[idx].channel_name + " to authkey: " + auth_key);
+
+                                            
+                                            pubnub.time( function(r){
+                                                    var myLocalTime = new Date().getTime() * 1000;
+                                                    logger.info('server time: ' + r + " actual time: " + new Date(r / 10000));
+                                                    logger.info('local time: ' + myLocalTime + ' actual time: ' + new Date());
+                                            });
+
                                             pubnub.grant({
                                                 channel: rooms[idx].channel_name,
                                                 auth_key: auth_key,
-                                                read: 1,
-                                                write: 1,
+                                                read: true,
+                                                write: true,
+                                                ttl: 1440,
+                                                callback: function(result) {
+                                                    logger.info(result);
+                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/me");
+                                                }
+                                                ,error: function(result) {
+                                                    logger.info("grant failed with message: %s" + result);
+                                                    logger.info(result);
+                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/me");
+                                                }
+
+                                            });
+
+
+                                            pubnub.grant({
+                                                channel: rooms[idx].channel_name + "-pnpres",
+                                                auth_key: auth_key,
+                                                read: true,
+                                                write: true,
                                                 ttl: 1440,
                                                 callback: function(result) {
                                                     logger.info(result);
@@ -172,7 +204,7 @@ module.exports = (function() {
                                 }
 
 
-                                var pubnub = request.pubnub;
+                            
                                 //find all the rooms with this level, grant for each 4 hours
                                 Room.find({
                                     "level": profile_results[0].level
@@ -190,8 +222,6 @@ module.exports = (function() {
                                     grant_access(rooms, final_user[0]._id);
 
                                 });
-
-
 
                                 
                             }
