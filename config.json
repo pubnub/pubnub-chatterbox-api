@@ -10,6 +10,7 @@
         "mongodb": {
           "url": "mongodb://chatterbox_dev:chatterbox_dev@ds041387.mongolab.com:41387/chatterbox_dev"
         },
+        
         "pubnub": {
           "subscribe_key": "sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f",
           "publish_key": "pub-c-27c05fcb-d215-4433-9b95-a6e3fd9f49d7",

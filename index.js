@@ -25,13 +25,22 @@ module.exports = (function() {
     logger.info('initalizing pubnub with key: \n publish: %s \n subscribe: %s,\n secret_key: %s', config.environments['development'].pubnub.publish_key,
                                                                                                   config.environments['development'].pubnub.subscribe_key,
                                                                                                   config.environments['development'].pubnub.secret_key);
-    //single instance of pubnub
+    /*//single instance of pubnub
     var pubnub = require('pubnub').init({
         subscribe_key: config.environments['development'].pubnub.subscribe_key,
         publish_key: config.environments['development'].pubnub.publish_key,
         secret_key: config.environments['development'].pubnub.secret_key,
         uuid: "chatterbox_api_server_admin",
         origin: 'ps5.pubnub.com',
+        ssl: false,
+    });*/
+
+     //single instance of pubnub
+    var pubnub = require('pubnub').init({
+        subscribe_key: "pam",
+        publish_key: "pam",
+        secret_key: "pam"
+        uuid: "chatterbox_api_server_admin",
         ssl: false,
     });
 
