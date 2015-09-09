@@ -1,8 +1,8 @@
 
 
 var express = require('express'),
-    Q = require('q'),
-    uuid = require('node-uuid');
+    uuid = require('node-uuid'),
+    _ = require('underscore');
 
 module.exports = function(app,models, passport, logger){
 
@@ -10,24 +10,25 @@ module.exports = function(app,models, passport, logger){
     var router = express.Router();
     var UserProfile = models.userProfile();
 
+   
     router.get('/:id', function(request, response) {
-        var promise = Q.defer();
-
-        UserProfile.findById(request.params.id, function(err, response) {
-         
-            if (err) {
-                promise.reject(err,result);
+        logger.info('entering find user profile by id: ' + request.params.id);
+        
+        UserProfile.findById(request.params.id, function(err, result) {
+            if(err){
+                var errs = "error while retrieving profile for id: " + request.params.id + " " + err;
+                response.status(500).json({error: errs});
             }else{
-                promise.resolve(result);
+                logger.debug()
+                response.json(result);
             }
-            return promise;
         });
+         
+        logger.info('leaving find user profile by id: ' + request.params.id);       
+    });
 
-        promise.then(function(result){
-            request.json(result);
-        }, function(err,result){
-            handleError(request,response,err);
-        })
+    router.get('/me', function(request,response){
+       load_org(request,response);
     });
 
 
@@ -48,7 +49,7 @@ module.exports = function(app,models, passport, logger){
         var organization_id = request.body.organization_id;
 
 
-        console.log('locating profile: ' + request.params.id);
+        logger.info('locating profile: ' + request.params.id);
 
         UserProfile.findById(request.params.id, function(err, results) {
             if (err) {
@@ -73,20 +74,45 @@ module.exports = function(app,models, passport, logger){
 
     router.get('/', function(request,response){
 
-        UserProfile.find(function(err,results){
-            if(!err){
-                response.status(200).json(results);
+        logger.info('entering get /profiles with orgid: ' + request.org_id);
+
+        var Organization = models.organization();
+
+        Organization.findOne({"cname" : request.org_id}, function(err,result){
+            if((err) || (!result)){
+                var err = {"error": err};
+                logger.info("returning an error from get /profiles");        
+                response.status(599).json(err);
             }else{
-                app.locals.error(request,response,err);
+                var p = result;
+
+                UserProfile.find().exec(function(errp,profile_results){
+                    if((errp) || (!profile_results)){
+                        var err = {"error": errp};
+                        response.status(599).json(err);
+                    }else{
+                        //MASSIVE TODO::::THIS IS WAY INEFFICIENT, OBJECT REF NOT LOADING
+                        var finalArr = [];
+                        for(var idx=0;idx <  profile_results.length; ++idx){
+                            if(profile_results[idx].organization_id.toString() === p._id.toString()){
+                                finalArr.push(profile_results[idx]);
+                            }
+                        }
+                        
+                        logger.info("returning 200");
+                        response.status(200).json(finalArr);
+                    }
+                });
             }
         });
+
 
     });
 
 
-
     router.post('/:id/connections/:provider', function(request, response) {
 
+        
         if (!request.body) {
             response.sendStatus(400);
             response.done();
@@ -139,25 +165,46 @@ module.exports = function(app,models, passport, logger){
         var email = request.body.email;
         var password = request.body.password;
         var location = request.body.location;
+        var level = request.body.level;
 
-        var newProfile = models.userProfile();
-        console.dir(newProfile);
 
-        var save_callback = function(err, profile) {
-            response.json(profile);
+        var create_new_user_profile = function(org){
+            var UserProfile = new models.userProfile();
+            var newProfile = new UserProfile();
+      
+
+            var save_callback = function(err, profile) {
+                if(err){
+                    response.status(500).json({error: err});
+                }else{
+                    response.json(profile);
+                }
+            }
+
+            newProfile.username = username;
+            newProfile.firstName = firstName;
+            newProfile.lastName = lastName;
+            newProfile.email = email;
+            newProfile.password = password;
+            newProfile.status = "enabled";  
+            newProfile.organization = org;
+            newProfile.organization_id = org._id;
+            newProfile.level = level;
+            newProfile.save(save_callback);
         }
 
-        newProfile.username = username;
-        newProfile.firstName = firstName;
-        newProfile.lastName = lastName;
-        newProfile.email = email;
-        newProfile.password = password;
-        newProfile.status = "enabled";  
-        newProfile.authKey = uuid.v4();
 
-        newProfile.save(save_callback);
+        var Organization = models.organization();
 
-        //response.json({done:"yes"});
+        Organization.findOne({"cname":request.org_id},function(err,result){
+             if((err) || (!result)){
+                var err = {"error": err};
+                logger.info("returning an error from get /profiles");        
+                response.status(599).json(err);
+             }else{
+                 create_new_user_profile(result);   
+             }
+        });
 
     });
 

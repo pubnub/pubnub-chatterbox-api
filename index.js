@@ -14,12 +14,14 @@ module.exports = (function() {
     var app = express();
     var config = require('./config.json');
 
+    //winston logger
     var logger = new(winston.Logger)({
         transports: [
             new(winston.transports.Console)
         ]
     });
 
+    //single instance of pubnub
     var pubnub = require('pubnub').init({
         subscribe_key: config.environments['development'].pubnub.subscribe_key,
         publish_key: config.environments['development'].pubnub.publish_key,
@@ -28,70 +30,70 @@ module.exports = (function() {
         ssl: true,
     });
 
-
-    mongoose.connect('mongodb://chatterbox_dev:chatterbox_dev@ds041387.mongolab.com:41387/chatterbox_dev')
-
+    //connect to db, in this case we are using MongoDB hosted on mongolab and mongoose ODM 
+    mongoose.connect(config.environments['development'].mongodb.url);
     var models = require('./model')(mongoose);
-    require('./sec')(passport, mongoose, models);
+
+    //load up passport for security. Using localstrategy and bearer strayegy
+    //require('./sec')(passport, models, logger);
 
    
-    app.use(function(req,res,next){
-        req.pubnub = pubnub;
-        if(next){ next(); }
-    })
+    //add some middleware to add pubnub to each request.
+    require('./middleware/add_pubnub_to_request')(app,pubnub,logger,config);
+    
+    //send a log message for each request with some useful diagnostic information
+    //require('./middleware/add_logging_to_request')(app,winston,logger)
 
-    app.use(function(req, res, next) {
 
-        var logmsg = 'rstart: %j, from: %s, path: %s';
-        logger.info(logmsg, new Date(), req.ip, req.path);
-        winston.profile(req.ip);
-        
-        if (next) {
-            next();
-        }
-        
-        winston.profile(req.ip);
+   
 
-        var logMessage = { ip: req.ip
-                           ,bearer: req.access_token 
-                           ,date: new Date()
-                           ,statusCode: res.status
-                           ,duration: req.headers['startTime']
-                        };
-        if(req.pubnub){
-            req.pubnub.publish({channel: 'chatterbox_dev-analytics'
-                           ,message: logMessage
-                           ,callback: function(){
-                                    logger.info('analytics message published');
-                            }});
-        }
-    });
-
+    
     app.set('port', (process.env.PORT || 5000));
     app.use(express.static(__dirname + '/public'));
-    app.use(bodyParser.json());
+    app.use(bodyParser.json({strict: false}));
     app.use(passport.initialize());
     app.use(passport.session());
 
-    
-    app.locals.error_call =  function(request, response, err) {
-        logger.info('error caught');
-        response.json({
-            error: err,
-        });
-    };
-
+    //app.use(passport.authenticate('bearer', {session: false})); //authenticate via basic auth
     var profile_router = require('./routes/profile')(app,models, passport,logger);
+    app.use('/chatterbox/api/v1/:cname/profile',profile_router);
+  
+    var idx=0;
+
+    app.param("cname",function(request,response,next,id){
+        logger.info("inside param(cname) for: " + ++idx);
+        var org = models.organization();
+        request.org_id = id;
+        next();
+      
+    });
+
+     //CORS Support
+    app.options('*', function(req,res){
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Credentials', true); 
+        res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELTE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type'); 
+    });
+
+
+
+    var admin_router = express.Router();
     var apikey_router = require('./routes/apikey')(app,models, passport,logger);
     var rooms_router = require('./routes/rooms')(app,models, passport,logger);
+    var organization_router = require('./routes/organization')(app,models, passport,logger);
 
-    app.use('/chatterbox/api/v1/profile',profile_router);
-    app.use('/chatterbox/api/v1/admin/apikey', apikey_router);
-    app.use('/chatterbox/api/v1/admin/rooms', rooms_router);
+    admin_router.use('/organization',organization_router);
+    admin_router.use('/organization/:organization_id/apikey', apikey_router);
+    admin_router.use('/organization/:organization_id/rooms', rooms_router);
+    app.use("/chatterbox/api/v1/admin", admin_router);
+
+    var urlencodedParser = bodyParser.urlencoded({ extended: false })
+    app.post('/chatterbox/api/v1/authenticate', function(request,response){
+       
 
 
-    
-    app.post('/chatterbox/v1/api/profile/auth', passport.authenticate('basic',{session: false}), function(request,response){
+
         response.json(request.user);
     });
 

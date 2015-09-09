@@ -5,82 +5,54 @@ var BearerStrategy = require('passport-http-bearer').Strategy;
 var BasicStrategy  = require('passport-http').BasicStrategy;
 
 
-module.exports = function(passport, mongoose, models){
+
+module.exports = function(passport, models, logger){
+
+ var UserProfile = models.userProfile();
+
+passport.use(new LocalStrategy({passReqToCallback: true},
+  function(request,username, password, done) {
+
+    UserProfile.findOne({$and : [{"username": username}, { "$elemMatch" : {"organization._id": request.org._id}}]}, function (err, user) {
+      if (err) { return done(err); }
+      
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+
+      if (!user.password == password){
+          return done(null, false, { message: 'Incorrect password.' });
+      }
+      
+      return done(null, user);
+    });
+  }
+));
 
 
-var adminPassword = "pubnubrocks!";
-var adminUserName = "pubnubadmin";
-
-
-	passport.use(new LocalStrategy(
-        function(username, password, done) {
-            var userProfile = models.userProfile();
-            userProfile.findOne({
-                email: username
-            }, function(err, user) {
-                if (err) {
-                    logger.debug('error in strategy');
-                    return done(err);
-                }
-                if (!user) {
-                    return done(null, false, {
-                        message: 'Incorrect username.'
-                    });
-                }
-                if (!user.password != password) {
-                    return done(null, false, {
-                        message: 'Incorrect password.'
-                    });
-                }
-                return done(null, user);
-            });
-        }
-    ));
-
-    passport.use(new BearerStrategy(
-        {
-        },
-        
-        function(token, done) {
-            var apiKey = models.apiKey();
-            apiKey.findOne({"access_token": token }, function(err,result){
-                logger.info('access token found: ' + token);
-                done();
-            });
-        }
-    ));
-
+passport.use(new BearerStrategy({passReqToCallback: true},
+   function(request,token, done) {
+    logger.info('entering middleware apikey validation for key: %s', token);
     
-    passport.use(new BasicStrategy(
-  		function(userid, password, done) {
-  		  console.log('username: ' + userid + ' password: ' + password);
-        var userProfile = models.userProfile();
+    if(!token){
+      var err = "api key is required, your request is missing an api key";
+      response.status(505).json({error: err});
+    }
 
-        userProfile.findOne({"email": userid}, function(err,result){
-            if(err){
-              console.log('error retrieving user');
-              done('invalid username',null);
-              return;
-            }else{
-               console.log('returning profile');
-               console.dir(result);
-               return done(null,result);
-               
-            }
-        });
+    var org = models.organization();
+    
+    org.findOne({"keys" : { $elemMatch: {"api_key": token}}}, function(err,result){
 
-      	/*if((userid === adminUserName) && (password === adminPassword)){
-  				console.log('returning a userprofile');
-  				done(null,{
-  					username: adminUserName,
-  					password: adminPassword
-  				});
-  			}else{
-  				done("wrong username/password",null);
-  			}*/
-  		}
-  	));
-    	
-  	
+      if((err) || (!result)){
+        var err = "could not find the api key: " + token;
+        done(null,err);
+      }else{
+        logger.info('keyvalidation found active organization: ' + result.name);
+        request.org = result;
+        done(null,result);        
+      }
+    });
+
+}));
 
 }

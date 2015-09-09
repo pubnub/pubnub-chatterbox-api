@@ -6,10 +6,10 @@ module.exports = function(mongoose){
 	
 
 	var UserProfileSchema = new Schema({
-		username: String,
-        firstName: String,
-        lastName: String,
-        email: String,
+		username: {type: String, unique: true, required: true},
+        firstName: {type: String, required: true},
+        lastName: {type: String, required: true},
+        email: {type: String, required: true},
         connections: [{
             provider: String,
             provider_profile_id: String
@@ -22,10 +22,12 @@ module.exports = function(mongoose){
                 ,manage: {type: Boolean}
             }
         }]
-        ,authkey: String
+        ,profile_source: String
         ,profile_img_url: String
-        ,status: String
-        ,api_key: String
+        ,status: {type: String, required: true}
+        ,organization_id: {type: Schema.Types.ObjectId, required: true}
+        ,organization: {type: Schema.Types.ObjectId, ref: 'Organization', required: true}
+        ,level: {type: String, required: true} //Gold, Silver, Platnium
 	});
 
     var ApiKeySchema = new Schema({
@@ -33,6 +35,13 @@ module.exports = function(mongoose){
         ,application: String
         ,contact_email: String
         ,status: String
+    });
+
+    var OrganizationSchema = new Schema({
+        name: {type: String, required: true, unique: true}
+        ,is_active: {type: Boolean, required: true, default: true}
+        ,cname: {type: String, required: true, unique: true}
+        ,keys: {type: [ApiKeySchema]}
     });
 
 
@@ -47,13 +56,15 @@ module.exports = function(mongoose){
 
 
 	var UserProfile = mongoose.model('UserProfile', UserProfileSchema);
-    var ApiKey = mongoose.model('ApiKey', ApiKeySchema);
     var Room = mongoose.model('Room',RoomSchema);
-    
+    var Organization = mongoose.model('Organization', OrganizationSchema);
+
+
+
     return {
-    	 userProfile: function() { return mongoose.model('UserProfile'); }
-    	, apiKey: function() { return ApiKey; }
-        , room: function(){ return Room;}
+    	 userProfile: function() { return  UserProfile; }
+    	, room: function(){ return Room;}
+        , organization: function(){ return Organization;}
     }
 
 }
