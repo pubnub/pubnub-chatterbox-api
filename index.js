@@ -36,12 +36,20 @@ module.exports = (function() {
     });
 
 
-    pubnub.grant({channel: 'webinar-chat', callback: function(m){ logger.info('channel level grant success: ');  logger.info(m)} 
-                                           ,error: function(m){ logger.info('channel level grant failed: '); logger.info(m); }});
+    pubnub.grant({channel: 'webinar-chat'
+                     ,read: true
+                     ,write: true 
+                     ,ttl: 14400 
+                     ,callback: function(m){ logger.info('channel level grant success: ');  logger.info(m)} 
+                     ,error: function(m){ logger.info('channel level grant failed: '); logger.info(m); }});
 
     
-    pubnub.grant({channel: 'webinar-chat-pnpres', callback: function(m){ logger.info('channel level grant success: ');  logger.info(m); }
-                                           ,error: function(m){ logger.info('channel level grant failed: '); logger.info(m); }})
+    pubnub.grant({channel: 'webinar-chat-pnpres'
+                  ,read: true
+                  ,write: true
+                  ,ttl: 14400,
+                  callback: function(m){ logger.info('channel level grant success: ');  logger.info(m); }
+                  ,error: function(m){ logger.info('channel level grant failed: '); logger.info(m); }})
 
 
 
@@ -68,6 +76,24 @@ module.exports = (function() {
     app.use(bodyParser.json({
         strict: false
     }));
+      //CORS Support
+    app.use('*', function(req, res, next) {
+        logger.info('adding cors support');
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELTE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+         // intercept OPTIONS method
+        if ('OPTIONS' == req.method) {
+            res.status(200).end();
+        }
+        else {
+            next();
+        }
+
+    });
+
     app.use(passport.initialize());
     app.use(passport.session());
 
@@ -83,20 +109,6 @@ module.exports = (function() {
         request.org_id = id;
         next();
     });
-
-
-
-
-
-    //CORS Support
-    app.options('*', function(req, res) {
-        res.header('Access-Control-Allow-Origin', '*');
-        res.header('Access-Control-Allow-Credentials', true);
-        res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELTE, OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type');
-    });
-
-
 
     var admin_router = express.Router();
     var apikey_router = require('./routes/apikey')(app, models, passport, logger);
@@ -122,6 +134,10 @@ module.exports = (function() {
     });
 
     app.post('/chatterbox/:cname/login', function(request, response) {
+
+
+        logger.info('entering login');
+        logger.info(request.body);
 
         if (request.org_id) {
             if ((!request.body.username) || (!request.body.password)) {
@@ -161,12 +177,12 @@ module.exports = (function() {
                                 }
 
                                 //here is where we go the grant
-                                var grant_access = function(rooms, auth_key) {
+                                var grant_access = function(rooms, profile) {
                                     try {
-                                        logger.debug('granting for authkey: ' + auth_key);
+                                        var authk = profile._id.toString().trim();
                                         var list_of_channel_names = [];
                                         for (var idx = 0; idx < rooms.length; ++idx) {
-                                            logger.info('granting access to room: ' + rooms[idx].room_name + " channel: " + rooms[idx].channel_name + " to authkey: " + auth_key);
+                                            logger.info('granting access to room: ' + rooms[idx].room_name + " channel: " + rooms[idx].channel_name + " to authkey: " + authk);
 
                                             //check to ensure your time is correct!!!!! otherwise Signatures won't match
                                             pubnub.time( function(r){
@@ -175,7 +191,7 @@ module.exports = (function() {
                                                     logger.info('local time: ' + myLocalTime + ' actual time: ' + new Date());
                                             });
 
-                                            var authk = auth_key.toString().trim();
+                                            
                                             //user level grant.
                                             pubnub.grant({
                                                 channel: rooms[idx].channel_name + "," + rooms[idx].channel_name + "-pnres",
@@ -185,12 +201,11 @@ module.exports = (function() {
                                                 ttl: 1440,
                                                 callback: function(result) {
                                                     logger.info(result);
-                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/" + authk);
+                                                    response.status(200).json(profile);
                                                 }
                                                 ,error: function(result) {
                                                     logger.info("grant failed with message: %s" + result);
-                                                    logger.info(result);
-                                                    response.redirect("/chatterbox/api/v1/" + request.org_id + "/profile/" + authk);
+                                                    response.status(500).json({"error": result});
                                                 }
                                             });
 
@@ -204,7 +219,7 @@ module.exports = (function() {
                             
                                 //find all the rooms with this level, grant for each 4 hours
                                 Room.find({
-                                    "level": profile_results[0].level
+                                    "level": final_user[0].level
                                 }, function(request, rooms) {
 
                                     //HACK, org is referenced as a dbref, mongoose has issues with dbref
@@ -216,7 +231,7 @@ module.exports = (function() {
                                         }
                                     }
 
-                                    grant_access(rooms, final_user[0]._id);
+                                    grant_access(rooms, final_user[0]);
 
                                 });
 

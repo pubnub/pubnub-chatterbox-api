@@ -6,12 +6,12 @@ var _ = require('underscore'),
 module.exports = function(app,models,logger){
 
 	
-	app.use("*/profile/*", function(request,response, next){
+	app.use("/chatterbox/api/v1/profile/*", function(request,response, next){
 		var access_token = request.headers['access_token'];
 		logger.info('entering middleware apikey validation for key: %s', request.headers['access_token']);
 		
 		if(!access_token){
-			var err = "api key is required, your request is missing an api key";
+			var err = "access_token is required, your request is missing an api key";
 			response.status(505).json({error: err});
 		}
 

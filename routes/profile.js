@@ -10,6 +10,22 @@ module.exports = function(app,models, passport, logger){
     var router = express.Router();
     var UserProfile = models.userProfile();
 
+    router.use(function(req,res,next){
+        res.header('Access-Control-Allow-Origin', '*');
+        res.header('Access-Control-Allow-Credentials', true);
+        res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELTE, OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+         // intercept OPTIONS method
+        if ('OPTIONS' == req.method) {
+            res.status(200).end();
+        }
+        else {
+            next();
+        }
+
+    })
+
    
     router.get('/:id', function(request, response) {
         logger.info('entering find user profile by id: ' + request.params.id);
