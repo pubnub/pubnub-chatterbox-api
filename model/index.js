@@ -46,11 +46,13 @@ module.exports = function(mongoose){
 
 
     var RoomSchema = new Schema({
-        api_key: String
-        ,room_name: String
-        ,room_description: String
-        ,channel_name: String
+        room_name: {type: String, required: true}
+        ,room_description: {type: String, required: false}
+        ,channel_name: {type: String, required: true}
         ,is_active: {type: Boolean}
+        ,level: {type: String, required: true}
+        ,organization_id: {type: Schema.Types.ObjectId, required: true}
+        ,organization: {type: Schema.Types.ObjectId, ref: 'Organization', required: true}
     });
 
 

@@ -29,4 +29,8 @@ module.exports = function(app,models,logger){
 			}
 		});
 	});
+
+	app.use(passport.)
+
+
 }

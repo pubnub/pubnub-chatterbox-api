@@ -5,6 +5,8 @@ var acme_corp_id = ObjectId();
 
 db.organizations.remove({});
 db.userprofiles.remove({});
+db.rooms.remove({});
+
 
 
 var organizations = [
@@ -12,7 +14,7 @@ var organizations = [
 	{"_id": chatterbox_org_id
 	,"name":"Chatterbox Org"
 	,"is_active":"true"
-	,"cname": "pubnub"
+	,"cname": "cbox"
 	, "keys": [
 		{"_id": ObjectId()
 		 ,"application":"Chatterbox"
@@ -40,6 +42,17 @@ var organizations = [
 db.organizations.insert(organizations);
 
 
+var rooms = [{
+				"room_name": "Main"
+				, "room_description": "The default main room"
+				, "organization": {"$ref": "organizations", "$id": chatterbox_org_id}
+				, "organization_id": chatterbox_org_id
+				, "channel_name": ObjectId()
+				, "level": "gold"
+				, "is_active": true
+			 }]
+
+db.rooms.insert(rooms);		
 
 
 var chatterbox_org_users = [{"_id": ObjectId()
@@ -88,6 +101,7 @@ var acme_org_users = [{"_id": ObjectId()
 			,"connections":[]
 			,"level": "gold"
 			,"rooms": []}]; 
+
 
 
 

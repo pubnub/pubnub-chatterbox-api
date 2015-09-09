@@ -72,7 +72,7 @@ module.exports = function(app,models, passport, logger){
     });
 
 
-    router.get('/', function(request,response){
+    router.get('/', passport.authenticate('local',{session: false}),function(request,response){
 
         logger.info('entering get /profiles with orgid: ' + request.org_id);
 

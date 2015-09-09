@@ -12,9 +12,13 @@ module.exports = function(passport, models, logger){
 
 passport.use(new LocalStrategy({passReqToCallback: true},
   function(request,username, password, done) {
+    logger.info('inside authenticate');
 
     UserProfile.findOne({$and : [{"username": username}, { "$elemMatch" : {"organization._id": request.org._id}}]}, function (err, user) {
-      if (err) { return done(err); }
+      if (err) { 
+        logger.info("error in local stratagy" + err);
+        return done(err); 
+      }
       
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
