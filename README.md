@@ -20,7 +20,7 @@ $ npm install
 $ npm start
 ```
 
-Your app should now be running on [localhost:3000](http://localhost:3000/).
+Your app should now be running on [localhost:5000](http://localhost:5000/).
 
 ## Deploying to Heroku
 
@@ -33,7 +33,12 @@ $ heroku open
 ## Documentation
 
 
+## Rest Endpoints 
 
-=======
-> node ./index.js 
+| Entity Endpoint                       |Supported VERBS                | Description
+---------------------------------------------------------------------------------------------------------------
+| chatterbox/api/v1/admin/organizations | POST, GET, GET:id, PUT,DELETE | CRUD operations for an organization |
+---------------------------------------------------------------------------------------------------------------
+| chatterbox/api/v1/admin/organization/rooms | POST, GET                | CRUD operation to support room creation|
+
 

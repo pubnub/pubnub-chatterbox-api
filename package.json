@@ -4,18 +4,19 @@
   "description": "Simple API for a chat app",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
     "body-parser": "^1.13.1",
     "express": "~4.9.x",
+    "minimalist": "^1.0.0",
     "mongoose": "^4.0.6",
     "node-uuid": "^1.4.3",
     "passport": "^0.2.2",
     "passport-http": "^0.2.2",
     "passport-http-bearer": "^1.0.1",
     "passport-local": "^1.0.0",
-    "pubnub": "^3.7.8",
+    "pubnub": "^3.7.14",
     "q": "^1.4.1",
     "underscore": "^1.8.3",
     "winston": "^1.0.0"
@@ -31,5 +32,15 @@
     "node",
     "heroku",
     "express"
-  ] 
+  ],
+  "devDependencies": {
+    "chai": "^3.2.0",
+    "expect": "^1.10.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-jshint": "^0.11.3",
+    "grunt-express-server": "^0.5.1",
+    "grunt-mocha-test": "^0.12.7",
+    "mocha": "^2.3.2",
+    "request": "^2.61.0"
+  }
 }

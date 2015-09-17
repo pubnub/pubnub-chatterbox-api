@@ -1,16 +1,15 @@
 {
-  "environments": 
-    {
-      "development": {
         "facebook": {
-          "clientID": "4836645812",
-          "clientSecret": "a35abf7f814f8ab1536bd7c209134cce",
-          "callbackURL": "http://pandora-tape.codio.io:3000/v1/profile/auth/facebook/callback"
         },
+
         "mongodb": {
           "url": "mongodb://chatterbox_dev:chatterbox_dev@ds041387.mongolab.com:41387/chatterbox_dev"
         },
-        
+
+        "logging": {
+             "log_path": "./logs"
+             ,"log_level": "debug"
+        },
         "pubnub": {
           "subscribe_key": "sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f",
           "publish_key": "pub-c-27c05fcb-d215-4433-9b95-a6e3fd9f49d7",
@@ -19,6 +18,4 @@
         "api": {
           "httpPort": "3000"
         }
-      }
-    }
 }

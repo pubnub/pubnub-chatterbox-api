@@ -24,11 +24,10 @@ module.exports = function(app,models,passport,logger){
                 response.status(599).json(err);
             }else{
                 var p = result;
-
-                Rooms.find().exec(function(errp,rooms){
-                    if((errp) || (!rooms)){
-                        var err = {"error": errp};
-                        response.status(599).json(err);
+                 Rooms.find().exec(function(errp,rooms){
+                        if((errp) || (!rooms)){
+                            var err = {"error": errp};
+                            response.status(599).json(err);
                     }else{
                         //MASSIVE TODO::::THIS IS WAY INEFFICIENT, OBJECT REF NOT LOADING
                         var finalArr = [];
@@ -43,8 +42,6 @@ module.exports = function(app,models,passport,logger){
                 });
             }
         });
-
-
     });
 	
 

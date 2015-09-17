@@ -1,0 +1,34 @@
+{"level":"info","message":"channel level grant success: ","timestamp":"2015-09-13T00:17:48.422Z"}
+{"channels":{"webinar-chat":{"r":1,"m":0,"w":1}},"subscribe_key":"sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f","ttl":14400,"level":"info","message":"","timestamp":"2015-09-13T00:17:48.424Z"}
+{"level":"info","message":"channel level grant success: ","timestamp":"2015-09-13T00:17:48.426Z"}
+{"channels":{"webinar-chat-pnpres":{"r":1,"m":0,"w":1}},"subscribe_key":"sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f","ttl":14400,"level":"info","message":"","timestamp":"2015-09-13T00:17:48.426Z"}
+{"level":"info","message":"channel level grant success: ","timestamp":"2015-09-16T21:48:32.019Z"}
+{"channels":{"webinar-chat":{"r":1,"m":0,"w":1}},"subscribe_key":"sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f","ttl":14400,"level":"info","message":"","timestamp":"2015-09-16T21:48:32.021Z"}
+{"level":"info","message":"channel level grant success: ","timestamp":"2015-09-16T21:48:32.104Z"}
+{"channels":{"webinar-chat-pnpres":{"r":1,"m":0,"w":1}},"subscribe_key":"sub-c-8bd55596-1f48-11e5-9205-0619f8945a4f","ttl":14400,"level":"info","message":"","timestamp":"2015-09-16T21:48:32.105Z"}
+{"level":"info","message":"time: 1442440120.02, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:48:40.021Z"}
+{"level":"info","message":"time: 1442440120.05, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:48:40.050Z"}
+{"level":"info","message":"time: 1442440140.592, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:49:00.592Z"}
+{"level":"info","message":"time: 1442440140.604, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:49:00.605Z"}
+{"level":"info","message":"time: 1442440172.335, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:49:32.335Z"}
+{"level":"info","message":"time: 1442440172.348, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:49:32.348Z"}
+{"level":"info","message":"time: 1442440211.889, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:50:11.889Z"}
+{"level":"info","message":"time: 1442440211.905, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:50:11.905Z"}
+{"level":"info","message":"time: 1442440634.778, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:57:14.778Z"}
+{"level":"info","message":"time: 1442440634.795, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:57:14.795Z"}
+{"level":"info","message":"time: 1442440686.117, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:58:06.118Z"}
+{"level":"info","message":"time: 1442440686.134, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-16T21:58:06.134Z"}
+{"level":"info","message":"time: 1442472063.055, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:41:03.055Z"}
+{"level":"info","message":"time: 1442472063.074, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:41:03.074Z"}
+{"level":"info","message":"time: 1442472119.182, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:41:59.182Z"}
+{"level":"info","message":"time: 1442472119.198, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:41:59.199Z"}
+{"level":"info","message":"time: 1442472447.233, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:47:27.233Z"}
+{"level":"info","message":"time: 1442472447.249, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:47:27.249Z"}
+{"level":"info","message":"time: 1442472473.644, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:47:53.644Z"}
+{"level":"info","message":"time: 1442472473.661, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:47:53.661Z"}
+{"level":"info","message":"time: 1442472539.352, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:48:59.352Z"}
+{"level":"info","message":"time: 1442472539.368, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:48:59.368Z"}
+{"level":"info","message":"time: 1442472546.342, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:49:06.342Z"}
+{"level":"info","message":"time: 1442472546.358, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:49:06.359Z"}
+{"level":"info","message":"time: 1442472595.333, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:49:55.334Z"}
+{"level":"info","message":"time: 1442472595.351, from: ::ffff:127.0.0.1, path: /chatterbox/api/v1/cbox/authenticate","timestamp":"2015-09-17T06:49:55.351Z"}
