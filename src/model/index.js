@@ -4,14 +4,13 @@ var Schema = require('mongoose').Schema;
 
 module.exports = function(mongoose){
 	
-
 	/**
      * This replaces level
      **/
-    var RoleSchema = new Schema({
+    var SecurityRoleSchema = new Schema({
          name: {type: String, required: true}
+        ,description: {type: String}
         ,organization_id: {type: Schema.Types.ObjectId, required: true}
-        ,description: {type: String}  
         ,permissions: {
              read:   {type: Boolean, required: true, default: false}
             ,write:  {type: Boolean, required: true, default: false}
@@ -20,9 +19,9 @@ module.exports = function(mongoose){
     });
 
 
-    var GroupSchema = new Schema({
+    var SecuirtyGroupSchema = new Schema({
         name: {type: String, required: true}
-        ,roles: {type: [RoleSchema]}
+        ,roles: {type: [SecurityRoleSchema]}
     });
 
     /**
@@ -38,7 +37,7 @@ module.exports = function(mongoose){
             provider: String,
             provider_data: {type: String}
         }]
-        ,user_groups: {type: [GroupSchema]}
+        ,user_groups: {type: [SecuirtyGroupSchema]}
         ,profile_source: String
         ,profile_img_url: String
         ,status: {type: String, required: true}
@@ -91,17 +90,18 @@ module.exports = function(mongoose){
     });
 
 
-	var UserProfile = mongoose.model('UserProfile', UserProfileSchema);
-    var Room = mongoose.model('Room',RoomSchema);
-    var Organization = mongoose.model('Organization', OrganizationSchema);
-    var OrganizationUser = mongoose.model('OrganizationUser',OrganizationUserProfileSchema);
+	  var UserProfile      = mongoose.model('UserProfile', UserProfileSchema);
+    var Room             = mongoose.model('Room',RoomSchema);
+    var Organization     = mongoose.model('Organization', OrganizationSchema);
+    var OrganizationProfile = mongoose.model('OrganizationProfile',OrganizationUserProfileSchema);
+    var SecuirtyGroup    = mongoose.model('SecurityGroup', SecuirtyGroupSchema);
     
-
     return {
-    	 userProfile: function() { return  UserProfile; }
-    	, room: function(){ return Room;}
+    	    userProfile:  function() { return  UserProfile; }
+    	  , room:         function(){ return Room;}
         , organization: function(){ return Organization;}
-        , organizationUsers: function() { return OrganizationUser; }
+        , organizationUsers: function() { return OrganizationProfile; }
+        , secuirtyGroup:function() { return SecuirtyGroup; }
     }
 
 }

@@ -21,7 +21,7 @@ describe('auth a user for chatterbox api access calls', function() {
   };
 
   var environment = config[process.env.NODE_ENV];
-  var baseURL = 'http://' + environment.api.host + ":" + environment.api.port + "/chatterbox/api/v1"; 
+  var baseURL = 'http://' + environment.api.host + ":" + environment.api.port + "/chatterbox"; 
 
   before(function(){
       
@@ -29,22 +29,18 @@ describe('auth a user for chatterbox api access calls', function() {
 
   it('should return an error when you auth a user that does not exists',function(done) {
       
-      var test_uri = baseURL + "/" + environment.api.org + "/authenticate";
+      var test_uri = baseURL + "/" + environment.api.org + "/login";
       var options = {
         url: test_uri
         ,method: 'POST',
         body: {
           username: 'donald',
-          password: 'password'
+          password: 'passwords'
         },
         json: true
       };
 
       request(options, function(err, response, body) {
-
-        console.log('this is the body');
-        console.log(body);
-
 
         assert.isTrue(response.statusCode != 200, "statusCode should have been set but was not");
         assert.isTrue((body != null), "body was null when it shouldn't be" );
@@ -54,7 +50,7 @@ describe('auth a user for chatterbox api access calls', function() {
     });
 
   it('should return a valid profile with good credentials', function(done) {
-    var test_uri = baseURL + "/" + environment.api.org + "/authenticate";
+    var test_uri = baseURL + "/" + environment.api.org + "/login";
     var options = {
       url: test_uri
       ,method: 'POST',

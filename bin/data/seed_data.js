@@ -4,7 +4,7 @@ var acme_corp_id = ObjectId();
 db.organizations.remove({});
 db.userprofiles.remove({});
 db.rooms.remove({});
-
+db.securityGroups.remove({});
 
 
 var organizations = [
@@ -43,7 +43,6 @@ var organizations = [
 
 db.organizations.insert(organizations);
 
-
 var readOnlyUserId = ObjectId();
 var adminUserId    = ObjectId();
 var publicUser     = ObjectId();
@@ -53,31 +52,31 @@ var sec_role_cbox = [{
     "_id": readOnlyUserId
     ,"name": "ReadOnlyUser"
     ,"description": "all users have this group, rooms associated with this group will be accessible to all"
-    ,"organization_id": chatterbox_org_id,
-    ,"permissions" {
-      "read": true,
-      ,"write": false,
+    ,"organization_id": chatterbox_org_id
+    ,"permissions": {
+      "read": true
+      ,"write": false
       ,"manage": false
     }
   }, 
   {
     "_id": adminUserId
     ,"name": "Admin"
-    ,"descriptions": "restricted access",
-    ,"organization_id": chatterbox_org_id,
-    ,"permissions" {
-      "read": true,
-      ,"write": true,
+    ,"descriptions": "restricted access"
+    ,"organization_id": chatterbox_org_id
+    ,"permissions": {
+      "read": true
+      ,"write": true
       ,"manage": true
     }
   }, {
     "_id": publicUser
-    ,"name": "PublicUser",
-    ,"descriptions": "restricted access",
-    ,"organization_id": chatterbox_org_id,
-    ,"permissions" {
-      "read": true,
-      ,"write": true,
+    ,"name": "PublicUser"
+    ,"descriptions": "restricted access"
+    ,"organization_id": chatterbox_org_id
+    ,"permissions": {
+      "read": true
+      ,"write": true
       ,"manage": false
     }
   }
@@ -88,23 +87,37 @@ var publicGroup = ObjectId();
 
 var public_sec_group = [{
     "_id": publicGroup
-    ."name": "Public",
-    ,"security_role": ""
+    ,"name": "Public"
+    ,"security_roles": [publicUser]
+}];
 
-
-}]
+db.securityGroups.insert(public_sec_group);      
 
 var rooms = [{
-  "room_name": "Main",
-  "room_description": "The default main room",
-  "organization_id": chatterbox_org_id,
-  "channel_name": ObjectId(),
-  "is_active": true,
-  "security_group_id": publicGroup
-}]
+  "_id": ObjectId()
+  ,"room_name": "Main"
+  ,"room_description": "The default main room"
+  ,"organization_id": chatterbox_org_id
+  ,"channel_name": ObjectId()
+  ,"is_active": true
+  ,"security_group_id": publicGroup
+  ,"use_presence": true
+  },
+  {
+    "_id": ObjectId()
+    ,"room_name":"Main Webinar Chat"
+    ,"description":"This is the main room of the webinar"
+    ,"organization_id": chatterbox_org_id
+    ,"channel_name": "webinar-chat"
+    ,"is_active": true
+    ,"security_group_id": publicGroup
+    ,"use_presence": true
+
+  }
+
+]
 
 db.rooms.insert(rooms);
-
 
 
 var chatterbox_org_users = [{
@@ -117,7 +130,7 @@ var chatterbox_org_users = [{
   "password": "password",
   "connections": [],
   "level": "gold",
-  "sec_group": []
+  "security_group_id": [publicGroup]
 }, {
   "_id": ObjectId(),
   "organization_id": chatterbox_org_id,
@@ -127,6 +140,7 @@ var chatterbox_org_users = [{
   "username": "cconover",
   "password": "password",
   "connections": [],
+  "security_group_id":[publicGroup],
   "level": "gold",
   "rooms": []
 }];
@@ -142,7 +156,7 @@ var acme_org_users = [{
   "password": "password",
   "connections": [],
   "level": "silver",
-  "rooms": []
+  "security_group_id":[publicGroup]
 }, {
   "_id": ObjectId(),
   "organization_id": acme_corp_id,
@@ -153,7 +167,7 @@ var acme_org_users = [{
   "password": "password",
   "connections": [],
   "level": "gold",
-  "rooms": []
+  "security_group_id":[publicGroup]
 }];
 
 

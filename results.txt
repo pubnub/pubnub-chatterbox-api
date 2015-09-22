@@ -1,22 +1,22 @@
 
 [0m[0m
 [0m  auth a user for chatterbox api access calls[0m
-this is the body
-Cannot POST /chatterbox/api/v1/cbox/authenticate
-
 [2K[0G  [31m  1) should return an error when you auth a user that does not exists[0m
 [2K[0G  [31m  2) should return a valid profile with good credentials[0m
 
 
-[92m [0m[32m 0 passing[0m[90m (42ms)[0m
+[92m [0m[32m 0 passing[0m[90m (163ms)[0m
 [31m  2 failing[0m
 
 [0m  1) auth a user for chatterbox api access calls should return an error when you auth a user that does not exists:
-[0m[31m     Uncaught AssertionError: body should contain a property called 'error': expected false to be true[0m[90m
-  
+[0m[31m     Uncaught TypeError: Cannot read property 'statusCode' of undefined[0m[90m
+      at Request._callback (test/test_authenticate.js:45:31)
+      at self.callback (node_modules/request/request.js:198:22)
+      at Request.onRequestError (node_modules/request/request.js:877:8)
+      at Socket.socketOnEnd (_http_client.js:288:9)
 [0m
 [0m  2) auth a user for chatterbox api access calls should return a valid profile with good credentials:
-[0m[31m     Uncaught AssertionError: this should return a 404: expected false to be true[0m[90m
+[0m[31m     Uncaught AssertionError: there was an error reported: expected false to be true[0m[90m
   
 [0m
 

@@ -1,4 +1,4 @@
-0 info it worked if it ends with ok
+ info it worked if it ends with ok
 1 verbose cli [ '/usr/local/bin/node', '/usr/local/bin/npm', 'start' ]
 2 info using npm@2.14.2
 3 info using node@v4.0.0

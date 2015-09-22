@@ -184,31 +184,31 @@ module.exports = (function() {
 
 
     app.post('/chatterbox/:cname/login', function(request, response) {
-        logger.info('entering login');
-        logger.info(request.body);
+            logger.info('entering login');
+            logger.info(request.body);
 
-        if (request.org_id) {
+
             if ((!request.body.username) || (!request.body.password)) {
-                response.status(403).json({
+                errorResponse = {
                     "error": "invalid and/or missing user name and password"
-                });
-            } else {
-                var Organization = models.organization();
-                var UserProfile = models.userProfile();
-                var Room = models.room();
+                }
+                response.status(403)
+                        .json(errorResponse)
+                        .end();
+            }
 
-                models.organization().findOne({
-                    "cname": request.org_id
-                }, function(err, org) {
-                    if ((err) || (!org)) {
-                        var error = {
-                            "error": "could not find orgnization"
-                        };
-                        response.status(404).json(error);
-                    } else {
-                        UserProfile.find({
-                            "username": request.body.username
-                        }, function(errp, profile_results) {
+            
+            models.organization().findOne({
+                "cname": request.org_id
+            }, function(err, org) {
+                if ((err) || (!org)) {
+                    var error = {
+                        "error": "could not find orgnization"
+                    };
+                    response.status(404).json(error);
+                } else {
+                    models.userProfile().find({"username": request.body.username},
+                        function(errp, profile_results) {
                             if ((errp) || (!profile_results)) {
                                 var err = {
                                     "error": errp
@@ -216,7 +216,7 @@ module.exports = (function() {
                                 response.status(599).json(err);
                             } else {
                                 //find all the rooms with this level, grant for each 4 hours
-                                Room.find({
+                                models.room().find({
                                     "level": profile_results[0].level
                                 }, function(request, rooms) {
 
@@ -237,16 +237,23 @@ module.exports = (function() {
                             }
 
                         });
-                    }
-                });
-            }
-        }
+                }
+            });
+        
     });
 
 
 
-    app.listen(app.get('port'), function() {
-        console.log('Node app is running on port', app.get('port'));
+    //added for webhooks
+    app.post("/chatterbox/api/v1/presence/hook", function(request,response){
+        var body = request.body
+        response.status(200).json(body);
     });
+
+
+
+app.listen(app.get('port'), function() {
+    console.log('Node app is running on port', app.get('port'));
+});
 
 })()

@@ -49,5 +49,5 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-mocha-test');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-express-server');
-	grunt.registerTask("default", ['express','mochaTest']);
+	grunt.registerTask("default", ['jshint','mochaTest']);
 };
